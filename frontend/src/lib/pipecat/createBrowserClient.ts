@@ -80,7 +80,10 @@ export async function connectBrowserCall(
     console.warn("Couldn't pre-register web call, connecting without call_id", err);
   }
 
+  const wsUrl = getBrowserWsUrl(orgId, agentId, callId);
+  console.info("[VoicEra] Connecting to WebSocket URL:", wsUrl);
+
   await client.connect({
-    wsUrl: getBrowserWsUrl(orgId, agentId, callId),
+    wsUrl,
   });
 }
