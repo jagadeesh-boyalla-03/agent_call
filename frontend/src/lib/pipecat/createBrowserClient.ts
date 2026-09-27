@@ -28,8 +28,14 @@ class TolerantProtobufFrameSerializer extends ProtobufFrameSerializer {
 
 /** Same-origin WebSocket — Next rewrites `/agent/*` → runtime via `RUNTIME_PROXY_TARGET`. */
 export function getBrowserWsUrl(orgId: string, agentId: string, callId?: string): string {
-  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-  const path = `${protocol}//${window.location.host}/agent/${orgId}/${agentId}`;
+  let path: string;
+  if (process.env.NEXT_PUBLIC_RUNTIME_WS_URL) {
+    const base = process.env.NEXT_PUBLIC_RUNTIME_WS_URL.replace(/\/$/, "");
+    path = `${base}/agent/${orgId}/${agentId}`;
+  } else {
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    path = `${protocol}//${window.location.host}/agent/${orgId}/${agentId}`;
+  }
   return callId ? `${path}?call_id=${encodeURIComponent(callId)}` : path;
 }
 
