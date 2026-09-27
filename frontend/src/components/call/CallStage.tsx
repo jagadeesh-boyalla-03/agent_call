@@ -160,8 +160,14 @@ export function CallStage({
   useRTVIClientEvent(
     RTVIEvent.Error,
     useCallback((msg: RTVIMessage) => {
-      const data = msg.data as { message?: string } | undefined;
-      setConnectError(data?.message || "Call error");
+      console.error("[VoicEra] RTVI error event:", msg);
+      const data = msg.data as any;
+      const errText =
+        data?.message ||
+        data?.error ||
+        (typeof data === "string" ? data : "") ||
+        (typeof msg.data === "string" ? msg.data : "Call error");
+      setConnectError(errText);
       setConnecting(false);
     }, []),
   );
