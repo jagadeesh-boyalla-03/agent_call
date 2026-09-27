@@ -1,0 +1,26 @@
+services:
+  # 1. VoicEra FastAPI Backend
+  - type: web
+    name: voicera-api
+    runtime: python
+    rootDir: apps/api
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 10000
+
+  # 2. VoicEra Voice Runtime (WebSockets)
+  - type: web
+    name: voicera-runtime
+    runtime: python
+    rootDir: .
+    buildCommand: pip install -r apps/runtime/requirements.txt
+    startCommand: uvicorn apps.runtime.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PORT
+        value: 10000
