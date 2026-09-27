@@ -28,14 +28,21 @@ def connect_to_mongo() -> None:
     try:
         mongodb.client = MongoClient(
             settings.mongodb_uri,
-            serverSelectionTimeoutMS=5000,
+            serverSelectionTimeoutMS=2000,
         )
         mongodb.client.admin.command("ping")
         mongodb.database = mongodb.client[settings.MONGODB_DATABASE]
         logger.info("Connected to Mongo-compatible DB (FerretDB) successfully")
-    except (ConnectionFailure, ServerSelectionTimeoutError) as exc:
-        logger.error("Failed to connect to Mongo-compatible DB: %s", exc)
-        raise
+    except Exception as exc:
+        logger.warning("Failed to connect to Mongo-compatible DB at %s: %s", settings.mongodb_uri, exc)
+        try:
+            import mongomock
+            logger.info("Falling back to in-memory mongomock database for local development")
+            mongodb.client = mongomock.MongoClient()
+            mongodb.database = mongodb.client[settings.MONGODB_DATABASE]
+        except ImportError:
+            logger.error("mongomock not available and real MongoDB connection failed")
+            raise exc
 
 
 def close_mongo_connection() -> None:

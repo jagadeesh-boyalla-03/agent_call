@@ -67,7 +67,9 @@ def test_answer_uses_agent_provider(
 @patch("apps.runtime.routes.agent.run_websocket_bot", new_callable=AsyncMock)
 @patch("apps.runtime.routes.agent.backend_client.create_web_call", new_callable=AsyncMock)
 @patch("apps.runtime.routes.agent.backend_client.get_agent", new_callable=AsyncMock)
+@patch("apps.runtime.routes.agent.backend_client.get_call", new_callable=AsyncMock)
 def test_websocket_agent_auto_creates_call_id(
+    get_call_mock: AsyncMock,
     get_agent_mock: AsyncMock,
     create_web_call_mock: AsyncMock,
     run_websocket_bot_mock: AsyncMock,
@@ -81,6 +83,7 @@ def test_websocket_agent_auto_creates_call_id(
         websocket.close()
 
     create_web_call_mock.assert_awaited_once_with("org-1", "agent-2")
+    get_call_mock.assert_not_awaited()
     run_websocket_bot_mock.assert_awaited_once()
     _, kwargs = run_websocket_bot_mock.await_args
     assert kwargs["call_id"] == "call-web-1"
@@ -122,14 +125,20 @@ def test_websocket_agent_reuses_query_call_id(
 
 
 @patch("apps.runtime.routes.agent.run_telephony_bot", new_callable=AsyncMock)
+@patch("apps.runtime.routes.agent.backend_client.get_call", new_callable=AsyncMock)
+@patch("apps.runtime.routes.agent.backend_client.create_inbound_call", new_callable=AsyncMock)
 @patch("apps.runtime.routes.agent.backend_client.get_agent", new_callable=AsyncMock)
 def test_telephony_agent_routes_to_telephony_bot(
     get_agent_mock: AsyncMock,
+    create_inbound_call_mock: AsyncMock,
+    get_call_mock: AsyncMock,
     run_telephony_bot_mock: AsyncMock,
     client: TestClient,
 ) -> None:
     agent = _telephony_agent(provider="vobiz")
     get_agent_mock.return_value = agent
+    create_inbound_call_mock.return_value = {"call_id": "call-inbound-1"}
+    get_call_mock.return_value = {"call_id": "call-inbound-1", "call_type": "inbound"}
 
     start_payload = {
         "event": "start",
@@ -144,6 +153,13 @@ def test_telephony_agent_routes_to_telephony_bot(
         websocket.close()
 
     run_telephony_bot_mock.assert_awaited_once()
+    create_inbound_call_mock.assert_awaited_once_with(
+        "org-1",
+        "agent-1",
+        provider_call_sid="call-123",
+        from_number="unknown",
+        to_number="unknown",
+    )
     _, kwargs = run_telephony_bot_mock.await_args
     assert kwargs["provider"] == "vobiz"
     assert kwargs["call_sid"] == "call-123"

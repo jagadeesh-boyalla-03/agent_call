@@ -1,4 +1,4 @@
-import { PipecatClient } from "@pipecat-ai/client-js";
+import { PipecatClient, type RTVIMessage } from "@pipecat-ai/client-js";
 import {
   ProtobufFrameSerializer,
   WebSocketTransport,
@@ -7,6 +7,30 @@ import { createWebCall } from "@/lib/api/calls";
 
 /** Matches runtime `WEBSOCKET_SAMPLE_RATE` (default 16000). */
 export const BROWSER_SAMPLE_RATE = 16000;
+
+/**
+ * JS WebSocketTransport only handles `audio` and `message`. Older/mismatched
+ * servers may still send text/transcription/interruption — ignore those instead
+ * of throwing (which surfaces as Next.js "Unknown frame kind").
+ */
+class TolerantProtobufFrameSerializer extends ProtobufFrameSerializer {
+  async deserialize(
+    data: unknown,
+  ): Promise<
+    | { type: "audio"; audio: Int16Array }
+    | { type: "message"; message: RTVIMessage }
+    | { type: "raw"; message: unknown }
+  > {
+    try {
+      return await super.deserialize(data);
+    } catch (err) {
+      if (err instanceof Error && err.message === "Unknown frame kind") {
+        return { type: "raw", message: null };
+      }
+      throw err;
+    }
+  }
+}
 
 /** Same-origin WebSocket — Next rewrites `/agent/*` → runtime via `RUNTIME_PROXY_TARGET`. */
 export function getBrowserWsUrl(orgId: string, agentId: string, callId?: string): string {
@@ -19,7 +43,7 @@ export function getBrowserWsUrl(orgId: string, agentId: string, callId?: string)
 export function createBrowserPipecatClient(): PipecatClient {
   return new PipecatClient({
     transport: new WebSocketTransport({
-      serializer: new ProtobufFrameSerializer(),
+      serializer: new TolerantProtobufFrameSerializer(),
       recorderSampleRate: BROWSER_SAMPLE_RATE,
       playerSampleRate: BROWSER_SAMPLE_RATE,
     }),

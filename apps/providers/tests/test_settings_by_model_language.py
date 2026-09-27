@@ -87,14 +87,18 @@ def test_scoped_models_align_with_model_examples():
     assert not errors, "Model key mismatches:\n" + "\n".join(errors)
 
 
-def test_sarvam_voice_options_split_by_model():
+def test_sarvam_v3_voice_options_include_the_default_voice():
     catalog = provider_schemas(Kind.TTS)["sarvam"]
     caps = catalog[CAPABILITIES_KEY]
-    v2 = caps["bulbul:v2"]["settings"]["hi"]["voice"]["options"]
     v3 = caps["bulbul:v3"]["settings"]["hi"]["voice"]["options"]
-    assert "anushka" in v2
     assert "shubh" in v3
-    assert "shubh" not in v2
+
+
+def test_sarvam_stt_legacy_model_is_migrated_to_a_streaming_model():
+    from apps.providers.cloud.sarvam.service import resolve_stt_model
+
+    assert resolve_stt_model("saarika:v2.5") == "saaras:v3"
+    assert resolve_stt_model("saaras:v4") == "saaras:v4"
 
 
 def test_smallest_pro_voices_only_on_pro_model():

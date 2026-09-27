@@ -81,15 +81,6 @@ async def agent_websocket(websocket: WebSocket, org_id: str, agent_id: str) -> N
                     result = await backend_client.create_web_call(org_id, agent_id)
                     call_id = str(result.get("call_id") or "") or None
                     logger.info("Registered web call call_id={}", call_id)
-                    if call_id:
-                        try:
-                            call_log = await backend_client.get_call(call_id, org_id)
-                        except BackendError as exc:
-                            logger.warning(
-                                "Failed to load new web call log call_id={}: {}",
-                                call_id,
-                                exc,
-                            )
                 except BackendError as exc:
                     logger.warning(
                         "Web call registration failed org_id={} agent_id={}: {}",

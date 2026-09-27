@@ -52,3 +52,26 @@ def test_merge_skips_auth_fetch_for_local_stt_tts():
     assert out["tts_config"]["provider"] == "indic_orpheus"
     assert out["llm_config"]["api_key"] == "sk-test"
     client.get_provider_auth.assert_awaited_once_with("openai", "org-1")
+
+
+def test_merge_uses_sarvam_environment_key_when_stored_auth_is_unavailable(
+    monkeypatch,
+):
+    monkeypatch.setenv("SARVAM_API_KEY", "sarvam-test-key")
+    client = MagicMock()
+    client.get_provider_auth = AsyncMock(side_effect=RuntimeError("API unavailable"))
+    agent = {
+        "org_id": "org-1",
+        "config": {
+            "models": {
+                "stt_config": {"provider": "sarvam", "model": "saarika:v2.5"},
+                "tts_config": {"provider": "sarvam", "model": "bulbul:v3"},
+                "llm_config": {"provider": "sarvam", "model": "sarvam-105b"},
+            }
+        },
+    }
+
+    out = asyncio.run(merge_models_with_auth(agent, client=client))
+
+    assert all(config["api_key"] == "sarvam-test-key" for config in out.values())
+    assert client.get_provider_auth.await_count == 3

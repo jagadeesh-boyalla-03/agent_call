@@ -573,8 +573,9 @@ def test_indic_nemotron_stt_creator(monkeypatch):
 
 def test_sarvam_stt_auto_detect_vendor_code_is_unknown():
     lang = provider_schemas(Kind.STT)["sarvam"]["fields"]["language"]
-    assert lang["language_codes"]["saarika:v2.5"]["multi"] == "unknown"
     assert lang["language_codes"]["saaras:v3"]["multi"] == "unknown"
+    assert lang["language_codes"]["saaras:v4"]["multi"] == "unknown"
+    assert "saarika:v2.5" not in lang["language_codes"]
 
 
 def test_deepgram_tts_language_is_options_only():

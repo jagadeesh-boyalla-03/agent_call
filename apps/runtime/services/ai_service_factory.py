@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 from loguru import logger
@@ -58,7 +59,15 @@ async def merge_models_with_auth(
         if not provider:
             raise ServiceBuildError(f"{kind}.provider is required")
         if _requires_stored_auth(provider):
-            auth = await client.get_provider_auth(provider, org_id)
+            try:
+                auth = await client.get_provider_auth(provider, org_id)
+            except Exception as exc:
+                env_key = os.getenv(f"{provider.upper()}_API_KEY") or os.getenv("SARVAM_API_KEY", "")
+                if env_key:
+                    auth = {"api_key": env_key}
+                    logger.info("Using environment variable fallback for provider={}", provider)
+                else:
+                    raise exc
             merged = {**blob, **auth}
             logger.info(
                 "Merged auth into {} provider={} keys={}",

@@ -76,7 +76,7 @@ class SarvamLLMConfig(SarvamAuth, SarvamLLMSettings, BaseLLMConfig):
 
 
 class SarvamSTTConfig(SarvamAuth, SarvamSTTSettings, BaseSTTConfig):
-    """Sarvam Saarika/Saaras STT configuration."""
+    """Sarvam Saaras real-time STT configuration."""
 
     settings_by_model_language: ClassVar[dict] = settings_tree(STT_CAPABILITIES)
 
@@ -94,8 +94,8 @@ class SarvamSTTConfig(SarvamAuth, SarvamSTTSettings, BaseSTTConfig):
     language: str = Field(
         default="multi",
         description=(
-            "Canonical language id. Use 'multi' for auto-detection "
-            "(saarika:v2.5+). Vendor codes are BCP-47 (e.g. 'hi-IN' → 'hi')."
+            "Canonical language id. Use 'multi' for auto-detection. "
+            "Vendor codes are BCP-47 (e.g. 'hi-IN' -> 'hi')."
         ),
         json_schema_extra=language_schema_extra(
             languages_map(STT_CAPABILITIES),

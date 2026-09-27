@@ -93,7 +93,7 @@ export const STT_PROVIDERS: {
     id: "sarvam",
     label: "Sarvam",
     note: "Balanced latency and accuracy across Indic + English.",
-    models: [{ value: "saarika-v2", label: "saarika-v2" }],
+    models: [{ value: "saaras:v4", label: "saaras:v4" }],
   },
   {
     id: "deepgram",
@@ -151,10 +151,10 @@ export const TTS_PROVIDERS: {
     id: "sarvam",
     label: "Sarvam",
     note: "Natural code-switching between Indic and English.",
-    model: "bulbul-v2",
+    model: "bulbul:v3",
     voices: [
-      { id: "anushka", name: "Anushka", note: "Friendly, everyday register." },
-      { id: "karun", name: "Karun", note: "Deeper, reassuring tone." },
+      { id: "shubh", name: "Shubh", note: "Friendly, everyday register." },
+      { id: "aditya", name: "Aditya", note: "Deeper, reassuring tone." },
     ],
   },
   {

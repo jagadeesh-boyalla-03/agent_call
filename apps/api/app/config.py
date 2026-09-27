@@ -47,7 +47,10 @@ class Settings(BaseSettings):
     MAILTRAP_FROM_NAME: str = "Voicera"
     FRONTEND_URL: str = "http://localhost:3000"
 
-    INTERNAL_API_KEY: str = ""
+    INTERNAL_API_KEY: str = Field(
+        default="dev-internal-key-12345",
+        description="Internal API key for service-to-service auth (bot tokens)",
+    )
     PROVIDER_AUTH_ENCRYPTION_KEY: str = Field(
         default="",
         description="Fernet key for encrypting ProviderAuth credential blobs",

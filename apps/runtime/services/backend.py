@@ -39,7 +39,7 @@ class BackendClient:
         if not force and cached and now < expires_at:
             return cached
 
-        internal_api_key = os.getenv("INTERNAL_API_KEY", "")
+        internal_api_key = os.getenv("INTERNAL_API_KEY", "dev-internal-key-12345")
         if not internal_api_key:
             raise BackendError("INTERNAL_API_KEY is not configured")
 

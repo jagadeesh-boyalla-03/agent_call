@@ -3,16 +3,27 @@
 from __future__ import annotations
 
 import logging
+import sys
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncIterator
+
+# Ensure workspace root is in sys.path so sibling packages (e.g. `apps.providers`) resolve seamlessly
+_ROOT_DIR = Path(__file__).resolve().parent.parent.parent.parent
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# pyrefly: ignore [missing-import]
 from app.config import settings
+# pyrefly: ignore [missing-import]
 from app.database import close_mongo_connection, connect_to_mongo, ping_database
+# pyrefly: ignore [missing-import]
 from app.database_init import initialize_database
-from app.routers import (
+# pyrefly: ignore [missing-import]
+from app.routers import ( 
     agents,
     auth,
     calls,
