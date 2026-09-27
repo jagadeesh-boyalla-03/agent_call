@@ -14,13 +14,7 @@ export const BROWSER_SAMPLE_RATE = 16000;
  * of throwing (which surfaces as Next.js "Unknown frame kind").
  */
 class TolerantProtobufFrameSerializer extends ProtobufFrameSerializer {
-  async deserialize(
-    data: unknown,
-  ): Promise<
-    | { type: "audio"; audio: Int16Array }
-    | { type: "message"; message: RTVIMessage }
-    | { type: "raw"; message: unknown }
-  > {
+  async deserialize(data: unknown): Promise<any> {
     try {
       return await super.deserialize(data);
     } catch (err) {
