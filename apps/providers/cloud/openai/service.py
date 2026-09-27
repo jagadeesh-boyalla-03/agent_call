@@ -26,12 +26,27 @@ def create_tts(cfg: OpenAITTSConfig):
     )
 
 
+_VALID_OPENAI_MODELS = {
+    "gpt-4.1": "gpt-4o",
+    "gpt-4.1-mini": "gpt-4o-mini",
+    "gpt-4.1-nano": "gpt-4o-mini",
+    "gpt-5": "gpt-4o",
+    "gpt-5-mini": "gpt-4o-mini",
+    "gpt-5-nano": "gpt-4o-mini",
+}
+
+
 @register_llm
 def create_llm(cfg: OpenAILLMConfig):
     from pipecat.services.openai.base_llm import OpenAILLMSettings
     from pipecat.services.openai.llm import OpenAILLMService
 
+    settings = llm_settings(cfg)
+    model = settings.get("model") or cfg.model
+    if model in _VALID_OPENAI_MODELS:
+        settings["model"] = _VALID_OPENAI_MODELS[model]
+
     return OpenAILLMService(
         api_key=api_key(cfg.api_key),
-        settings=OpenAILLMSettings(**llm_settings(cfg)),
+        settings=OpenAILLMSettings(**settings),
     )

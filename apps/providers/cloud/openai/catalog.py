@@ -3,16 +3,13 @@
 from ...capabilities import expand_settings
 
 LLM_MODELS: tuple[str, ...] = (
-    "gpt-4.1",
-    "gpt-4.1-mini",
-    "gpt-4.1-nano",
-    "gpt-5",
-    "gpt-5-mini",
-    "gpt-5-nano",
+    "gpt-4o-mini",
+    "gpt-4o",
+    "gpt-4-turbo",
     "gpt-3.5-turbo",
 )
 
-DEFAULT_LLM_MODEL = "gpt-4.1"
+DEFAULT_LLM_MODEL = "gpt-4o-mini"
 
 TTS_VOICES: tuple[str, ...] = (
     "alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse",
