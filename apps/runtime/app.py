@@ -21,6 +21,7 @@ except Exception:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+# pyrefly: ignore [missing-import]
 from apps.runtime.routes import agent, health, telephony
 
 app = FastAPI(

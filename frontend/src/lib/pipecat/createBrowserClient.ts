@@ -26,15 +26,23 @@ class TolerantProtobufFrameSerializer extends ProtobufFrameSerializer {
   }
 }
 
-/** Same-origin WebSocket — Next rewrites `/agent/*` → runtime via `RUNTIME_PROXY_TARGET`. */
 export function getBrowserWsUrl(orgId: string, agentId: string, callId?: string): string {
   let path: string;
   if (process.env.NEXT_PUBLIC_RUNTIME_WS_URL) {
-    const base = process.env.NEXT_PUBLIC_RUNTIME_WS_URL.replace(/\/$/, "");
+    let base = process.env.NEXT_PUBLIC_RUNTIME_WS_URL.trim().replace(/\/$/, "");
+    if (base.startsWith("https://")) {
+      base = base.replace(/^https:\/\//, "wss://");
+    } else if (base.startsWith("http://")) {
+      base = base.replace(/^http:\/\//, "ws://");
+    } else if (!base.startsWith("ws://") && !base.startsWith("wss://")) {
+      const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+      base = `${isHttps ? "wss:" : "ws:"}//${base}`;
+    }
     path = `${base}/agent/${orgId}/${agentId}`;
   } else {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    path = `${protocol}//${window.location.host}/agent/${orgId}/${agentId}`;
+    const protocol = typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:";
+    const host = typeof window !== "undefined" ? window.location.host : "localhost:3000";
+    path = `${protocol}//${host}/agent/${orgId}/${agentId}`;
   }
   return callId ? `${path}?call_id=${encodeURIComponent(callId)}` : path;
 }
